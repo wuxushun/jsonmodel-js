@@ -172,7 +172,7 @@ const dataModel = JsonModel.define({
   },
 });
 
-const data = dataModel.parse({
+const data = dataModel.modelFromObject({
   name: "jsonmodel",
   count: 20,
 });
@@ -202,7 +202,7 @@ const dataModel = JsonModel.define({
   },
 });
 
-const data = dataModel.parse({
+const data = dataModel.modelFromObject({
   num: "20",
 });
 
@@ -227,7 +227,7 @@ const dataModel = JsonModel.define({
   },
 });
 
-const data = dataModel.parse({
+const data = dataModel.modelFromObject({
   title: "jsonmodel",
 });
 
@@ -252,7 +252,7 @@ const dataModel = JsonModel.define({
   },
 });
 
-const data = dataModel.parse({
+const data = dataModel.modelFromObject({
   title: "jsonmodel",
   count: null,
 });
@@ -277,7 +277,7 @@ const dataModel = JsonModel.define({
   user: userModel,
 });
 
-const data = dataModel.parse({
+const data = dataModel.modelFromObject({
   title: "jsonmodel",
   count: 10,
   user: {
