@@ -55,7 +55,7 @@ npm i --save jsonmodel-js
 #### Node.js(cjs)
 
 ```js
-const JsonModel = require("jsonmodel-js/cjs");
+const JsonModel = require("jsonmodel-js/dist/cjs");
 
 const model = JsonModel.define({
   title: "String",
@@ -65,7 +65,7 @@ const model = JsonModel.define({
 #### ES Module
 
 ```js
-import JsonModel from "jsonmodel-js/esm";
+import JsonModel from "jsonmodel-js/dist/esm";
 
 const model = JsonModel.define({
   title: "String",
@@ -99,32 +99,7 @@ const data = dataModel.modelFromObject({
 console.log(data); // { title: 'jsonmodel', count: 10 } xxx未定义将被忽略
 ```
 
-#### 填充默认值
-
-有时候后端返回的数据中会缺少一些字段，前端需要指定默认值，如果直接通过 `.` 点操作符取值，可能会存在 `undefined is not an Object` 的错误，这种情况通过指定 `default` 默认值可以很好的解决问题：
-
-```js
-const JsonModel = require("jsonmodel-js/dist/cjs");
-
-const dataModel = JsonModel.define({
-  title: {
-    type: "String",
-    default: "jsonmodel",
-  },
-  count: {
-    type: "Number",
-    default: 10,
-  },
-});
-
-const data = dataModel.modelFromObject({
-  count: 20,
-});
-
-console.log(data); // { count: 20, title: 'jsonmodel' }
-```
-
-From 数组
+From 数组：
 
 ```js
 const JsonModel = require("jsonmodel-js/dist/cjs");
@@ -154,12 +129,37 @@ console.log(data);
 // [{ count: 20, title: 'hello jsonmodel' }, { count: 30, title: 'jsonmodel' }]
 ```
 
+#### 填充默认值
+
+有时候后端返回的数据中会缺少一些字段，前端需要指定默认值，如果直接通过 `.` 点操作符取值，可能会存在 `undefined is not an Object` 的错误，这种情况通过指定 `default` 默认值可以很好的解决问题：
+
+```js
+const JsonModel = require("jsonmodel-js/dist/cjs");
+
+const dataModel = JsonModel.define({
+  title: {
+    type: "String",
+    default: "jsonmodel",
+  },
+  count: {
+    type: "Number",
+    default: 10,
+  },
+});
+
+const data = dataModel.modelFromObject({
+  count: 20,
+});
+
+console.log(data); // { count: 20, title: 'jsonmodel' }
+```
+
 #### 字段名映射
 
 有时候同一个数据，因为使用的场景不一样，后端和前端的命名也不一样，这种情况我们可以通过 `keyMapper` 映射到另一个字段的值：
 
 ```js
-const JsonModel = require("jsonmodel-js/cjs");
+const JsonModel = require("jsonmodel-js/dist/cjs");
 
 const dataModel = JsonModel.define({
   title: {
@@ -185,7 +185,7 @@ console.log(data); // { title: 'jsonmodel', count: 20 }
 后端返回的数据通常是数据库中保存的原始值，前端需要将它转换为合适的格式，这种情况我们可以通过 `format` 格式化很好的解决这个问题：
 
 ```js
-const JsonModel = require("jsonmodel-js/cjs");
+const JsonModel = require("jsonmodel-js/dist/cjs");
 
 const dataModel = JsonModel.define({
   title: {
@@ -209,12 +209,63 @@ const data = dataModel.parse({
 console.log(data); // { title: 'jsonmodel', count: 20 }
 ```
 
+#### 可选值
+
+有的时候后端返回的字段是可选的，我们可以这样定义：
+
+```js
+const JsonModel = require("jsonmodel-js/dist/cjs");
+
+const dataModel = JsonModel.define({
+  title: {
+    type: "String",
+    default: "jsonmodel",
+  },
+  count: {
+    type: "Number",
+    optional: true,
+  },
+});
+
+const data = dataModel.parse({
+  title: "jsonmodel",
+});
+
+console.log(data); // { title: 'jsonmodel' }
+```
+
+#### 忽略 null 处理
+
+默认情况下，被定义的 model 将被强制设置指定类型的默认值，如需忽略可以设置该字段：
+
+```js
+const JsonModel = require("jsonmodel-js/dist/cjs");
+
+const dataModel = JsonModel.define({
+  title: {
+    type: "String",
+    default: "jsonmodel",
+  },
+  count: {
+    type: "Number",
+    ignoreNull: true,
+  },
+});
+
+const data = dataModel.parse({
+  title: "jsonmodel",
+  count: null,
+});
+
+console.log(data); // { title: 'jsonmodel', count: null, }
+```
+
 #### 嵌套数据模型
 
 除了基本的 JavaScript 类型外，还支持嵌套数据模型，这种场景非常常见：
 
 ```js
-const JsonModel = require("jsonmodel-js/cjs");
+const JsonModel = require("jsonmodel-js/dist/cjs");
 
 const userModel = JsonModel.define({
   name: "String",
