@@ -1,14 +1,18 @@
 {
   "name": "jsonmodel-js",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "JSON Model for javascript",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "browser": "dist/umd/jsonmodel.umd.js",
   "scripts": {
-    "build": "rollup -c",
     "lint": "eslint src --fix",
-    "test": "jest"
+    "test": "jest",
+    "clean": "shx rm -rf dist && shx rm -rf bin",
+    "build": "rollup -c",
+    "content": "shx mkdir bin && shx cp -R dist bin/dist && shx cp {README.md,package.json} bin",
+    "build:release": "npm run clean && npm run build && npm run content",
+    "deploy": "pushd ./bin && npm publish && popd"
   },
   "keywords": [
     "JSON",
@@ -16,8 +20,12 @@
     "model",
     "javascript"
   ],
-  "author": "wuxushun920@gmail.com",
-  "license": "The MIT License",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wuxushun/jsonmodel-js.git"
+  },
+  "author": "wuxushun@icloud.com",
+  "license": "MIT",
   "dependencies": {
     "lodash": "^4.17.21"
   },
