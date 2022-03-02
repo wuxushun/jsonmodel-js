@@ -54,7 +54,7 @@ function deepFreeze(obj: IPlainObject): IPlainObject {
 }
 
 function logger(...arg: any[]) {
-    console.warn('jsonmodel:', ...arg)
+    console.log('jsonmodel:', ...arg)
 }
 
 export default {

@@ -7,7 +7,7 @@ class Model {
     private readonly model: Define
 
     constructor(definedModel: Define, parsedData: IPlainObject) {
-        if (definedModel instanceof Define) {
+        if (!(definedModel instanceof Define)) {
             throw new TypeError('The Define Type Error.')
         }
 
@@ -18,12 +18,13 @@ class Model {
 
     private init() {
         this.model.getProperties().forEach((propertyName: string) => {
-            // eslint-disable-next-line @typescript-eslint/no-this-alias
-            const self: any = this
-            self[`get ${propertyName}`] = () => {
-                return utils.get(this.data, propertyName)
-            }
+            Object.defineProperty(this, propertyName, {
+                get: function() {
+                    return utils.get(this.data, propertyName)
+                },
+            })
         })
+        Object.freeze(this)
     }
 
     public toObject(): IPlainObject {
@@ -47,7 +48,7 @@ class Model {
             }
             next[propertyName] = utils.get(this.data, propertyName)
         })
-        return {}
+        return next
     }
 }
 
