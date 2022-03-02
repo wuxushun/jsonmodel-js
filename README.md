@@ -46,7 +46,7 @@ npm i --save jsonmodel-js
 
 ```html
 <script type="text/javascript">
-  const model = JsonModel.define({
+  const model = new JsonModel.define({
     title: "String",
   });
 </script>
@@ -57,7 +57,7 @@ npm i --save jsonmodel-js
 ```js
 const JsonModel = require("jsonmodel-js/dist/cjs");
 
-const model = JsonModel.define({
+const model = new JsonModel.define({
   title: "String",
 });
 ```
@@ -67,7 +67,7 @@ const model = JsonModel.define({
 ```js
 import JsonModel from "jsonmodel-js/dist/esm";
 
-const model = JsonModel.define({
+const model = new JsonModel.define({
   title: "String",
 });
 ```
@@ -81,7 +81,7 @@ const model = JsonModel.define({
 ```js
 const JsonModel = require("jsonmodel-js/dist/cjs");
 
-const dataModel = JsonModel.define({
+const dataModel = new JsonModel.define({
   title: "String",
   count: "Number",
 });
@@ -104,7 +104,7 @@ From 数组：
 ```js
 const JsonModel = require("jsonmodel-js/dist/cjs");
 
-const dataModel = JsonModel.define({
+const dataModel = new JsonModel.define({
   title: {
     type: "String",
     default: "jsonmodel",
@@ -136,7 +136,7 @@ console.log(data);
 ```js
 const JsonModel = require("jsonmodel-js/dist/cjs");
 
-const dataModel = JsonModel.define({
+const dataModel = new JsonModel.define({
   title: {
     type: "String",
     default: "jsonmodel",
@@ -161,7 +161,7 @@ console.log(data); // { count: 20, title: 'jsonmodel' }
 ```js
 const JsonModel = require("jsonmodel-js/dist/cjs");
 
-const dataModel = JsonModel.define({
+const dataModel = new JsonModel.define({
   title: {
     type: "String",
     keyMapper: "name",
@@ -187,7 +187,7 @@ console.log(data); // { title: 'jsonmodel', count: 20 }
 ```js
 const JsonModel = require("jsonmodel-js/dist/cjs");
 
-const dataModel = JsonModel.define({
+const dataModel = new JsonModel.define({
   title: {
     type: "String",
     default: "jsonmodel",
@@ -216,7 +216,7 @@ console.log(data); // { title: 'jsonmodel', count: 20 }
 ```js
 const JsonModel = require("jsonmodel-js/dist/cjs");
 
-const dataModel = JsonModel.define({
+const dataModel = new JsonModel.define({
   title: {
     type: "String",
     default: "jsonmodel",
@@ -241,7 +241,7 @@ console.log(data); // { title: 'jsonmodel' }
 ```js
 const JsonModel = require("jsonmodel-js/dist/cjs");
 
-const dataModel = JsonModel.define({
+const dataModel = new JsonModel.define({
   title: {
     type: "String",
     default: "jsonmodel",
@@ -267,11 +267,11 @@ console.log(data); // { title: 'jsonmodel', count: null, }
 ```js
 const JsonModel = require("jsonmodel-js/dist/cjs");
 
-const userModel = JsonModel.define({
+const userModel = new JsonModel.define({
   name: "String",
 });
 
-const dataModel = JsonModel.define({
+const dataModel = new JsonModel.define({
   title: "Number",
   count: "String",
   user: userModel,
@@ -290,6 +290,6 @@ console.log(data); // { title: "jsonmodel", count: 10, user: { name: 'mark' } }
 
 ### 特征
 
-- [ ] 完善单元测试
+- [x] 完善单元测试
 - [ ] 实现所有 oc-jsonmodel api
 - [ ] 包体积优化
