@@ -8,6 +8,10 @@ test('basic', () => {
         count: {
             type: 'Number',
         },
+        isMan: {
+            type: 'Boolean',
+            default: true,
+        },
         ts: 'Timestamp',
         date: 'DateString',
     })
@@ -18,6 +22,7 @@ test('basic', () => {
     const correct = {
         title: 'hello jsonmodel',
         count: 10,
+        isMan: true,
         ts: 0,
         date: '1970-01-01 08:00:00',
     }
@@ -259,4 +264,24 @@ test('nest arr2', () => {
     expect(m_model_obj.title).toEqual(correct.title)
     expect(m_model_obj.count).toEqual(correct.count)
     expect(m_model_obj.users).toEqual(correct.users)
+});
+
+
+test('err', () => {
+    const model = new JsonModel.define({
+        title: "String",
+        count: "Number",
+        names: ['String'],
+    });
+    const json = {}
+    const correct = {
+        title: "",
+        count: 0,
+        names: [],
+    }
+
+    const m_model_obj = model.modelFromObject(json)
+    expect(m_model_obj.title).toEqual(correct.title)
+    expect(m_model_obj.count).toEqual(correct.count)
+    expect(m_model_obj.names).toEqual(correct.names)
 });

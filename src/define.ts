@@ -26,7 +26,7 @@ class Define {
     }
 
     public modelFromString(jsonstring: string): IPlainObject {
-        if (!utils.isJson(jsonstring)) return {}
+        if (!utils.isJson(jsonstring)) return this.modelFromObject({})
         const object = JSON.parse(jsonstring)
         return this.modelFromObject(object)
     }
@@ -50,6 +50,10 @@ class Define {
         return Object.keys(this.model)
     }
 
+    public hasProperty(propertyName: string): boolean {
+        return this.getProperties().includes(propertyName)
+    }
+
     private getValue(data: any, model: IModel, property: string, defaultValue?: any) {
         return utils.get(data, (model.keyMapper || property) as any, defaultValue)
     }
@@ -58,11 +62,10 @@ class Define {
         const modelType: ModelRecordType = model.type
         const modelOptional = model.optional || false
         const modelIgnoreNull = model.ignoreNull || false
-        const _formatter = utils.get(model, 'format', (_next: any) => _next)
         const nextValue = this.getValue(data, model, property, undefined)
         if ([undefined, null].includes(nextValue)) {
-            if (modelOptional) return _formatter(undefined)
-            if (modelIgnoreNull) return _formatter(null)
+            if (modelIgnoreNull) return null
+            if (modelOptional) return undefined
         }
 
         if (utils.isArray(modelType) && modelType.length === 1) {
@@ -83,16 +86,18 @@ class Define {
             return nextValue
         } else if (modelType === 'Number') {
             const defaultValue = model.default || 0
-            if(!utils.isNumber(Number(nextValue))) return defaultValue
-            return nextValue
+            const formattedNextValue = Number(nextValue)
+            if(!utils.isNumber(formattedNextValue)) return defaultValue
+            return formattedNextValue
         } else if (modelType === 'DateString') {
             const defaultValue = model.default || '1970-01-01 08:00:00'
             if(!utils.isDateString(nextValue)) return defaultValue
             return nextValue
         } else if (modelType === 'Timestamp') {
             const defaultValue = model.default || 0
-            if(!utils.isInteger(Number(nextValue))) return defaultValue
-            return nextValue
+            const formattedNextValue = Number(nextValue)
+            if(!utils.isTimestamp(formattedNextValue)) return defaultValue
+            return formattedNextValue
         } else {
             return undefined
         }
@@ -117,7 +122,6 @@ class Define {
 
     private parseObject(data: IPlainObject) {
         const nextData: IPlainObject = {}
-        if (!utils.isObject(data)) return nextData
 
         const properties = this.getProperties()
         properties.forEach((property: string) => {

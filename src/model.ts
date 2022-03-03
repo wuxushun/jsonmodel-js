@@ -12,7 +12,7 @@ class Model {
         }
 
         this.model = definedModel
-        this.data = parsedData
+        this.data = utils.deepFreeze(parsedData)
         this.init()
     }
 
@@ -24,7 +24,7 @@ class Model {
                 },
             })
         })
-        Object.freeze(this)
+        utils.deepFreeze(this)
     }
 
     public toObject(): IPlainObject {
@@ -46,7 +46,9 @@ class Model {
             if (!utils.isString(propertyName)) {
                 throw new TypeError('The propertyName must be String.')
             }
-            next[propertyName] = utils.get(this.data, propertyName)
+            if (this.model.hasProperty(propertyName)) {
+                next[propertyName] = utils.get(this.data, propertyName)
+            }
         })
         return next
     }

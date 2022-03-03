@@ -6,23 +6,15 @@ import get from 'lodash/get'
 import { IPlainObject } from './types'
 
 
-function isJson(json: string): boolean {
-    if (!isString(json)) {
+function isJson(value: any): boolean {
+    if (!isString(value)) {
         return false
     }
     try {
-        const obj = JSON.parse(json)
+        const obj = JSON.parse(value)
         return isObject(obj)
     } catch(e) {
         return false
-    }
-}
-
-function toJson(obj: IPlainObject | Array<any>):string | null {
-    try {
-        return JSON.stringify(obj)
-    } catch(e) {
-        return null
     }
 }
 
@@ -31,16 +23,20 @@ function isBoolean(value: any): boolean {
 }
 
 function isNumber(value: any): boolean {
-    return typeof value === 'number'
+    return typeof value === 'number' && !isNaN(value)
    }
 
 function isInteger(value: any): boolean {
-    return typeof isNumber(value) && value % 1 === 0
+    return isNumber(value) && value % 1 === 0
    }
 
-function isDateString(str: any): boolean {
-    if (typeof str !== 'string') return false
-    return /^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$/.test(str)
+function isDateString(value: any): boolean {
+    if (typeof value !== 'string') return false
+    return /^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$/.test(value)
+}
+
+function isTimestamp(value: any): boolean {
+    return isInteger(Number(value))
 }
 
 function deepFreeze(obj: IPlainObject): IPlainObject {
@@ -51,6 +47,14 @@ function deepFreeze(obj: IPlainObject): IPlainObject {
         }
     });
     return obj;
+}
+
+function toJson(obj: IPlainObject | Array<any>):string | null {
+    try {
+        return JSON.stringify(obj)
+    } catch(e) {
+        return null
+    }
 }
 
 function logger(...arg: any[]) {
@@ -67,6 +71,7 @@ export default {
     isNumber,
     isInteger,
     isDateString,
+    isTimestamp,
 
     toJson,
     deepFreeze,
