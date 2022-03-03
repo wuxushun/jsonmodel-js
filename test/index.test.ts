@@ -143,9 +143,9 @@ test('optional', () => {
         title: 'hello jsonmodel',
     }
 
-    const m_model_obj = model.modelFromObject(json)
-    expect(m_model_obj.title).toEqual(correct.title)
-    expect(m_model_obj.count).toEqual(undefined)
+    const m_model_obj = model.modelFromObject(json).toObject()
+    expect(m_model_obj).toEqual(correct)
+    expect(m_model_obj).not.toHaveProperty('count')
 });
 
 test('ignore null', () => {
@@ -203,7 +203,30 @@ test('nest obj', () => {
     expect(m_model_obj.user).toEqual(correct.user)
 });
 
-test('nest arr', () => {
+test('nest arr1', () => {
+    const model = new JsonModel.define({
+        title: "String",
+        count: "Number",
+        names: ['String'],
+    });
+    const json = {
+        title: "jsonmodel",
+        count: 10,
+        names: [1, '2'],
+    }
+    const correct = {
+        title: "jsonmodel",
+        count: 10,
+        names: ['1', '2'],
+    }
+
+    const m_model_obj = model.modelFromObject(json)
+    expect(m_model_obj.title).toEqual(correct.title)
+    expect(m_model_obj.count).toEqual(correct.count)
+    expect(m_model_obj.names).toEqual(correct.names)
+});
+
+test('nest arr2', () => {
     const userModel = new JsonModel.define({
         name: "String",
     });

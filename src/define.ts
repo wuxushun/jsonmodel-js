@@ -50,62 +50,69 @@ class Define {
         return Object.keys(this.model)
     }
 
-    private getValue(data: any, model: IModel, property: string, defaultValue: any) {
+    private getValue(data: any, model: IModel, property: string, defaultValue?: any) {
         return utils.get(data, (model.keyMapper || property) as any, defaultValue)
     }
 
     private valueHandler(data: any, model: IModel, property: string) {
+        const modelType: ModelRecordType = model.type
         const modelOptional = model.optional || false
         const modelIgnoreNull = model.ignoreNull || false
         const _formatter = utils.get(model, 'format', (_next: any) => _next)
-        const _getValue = (defaultValue: any) => {
-            const nextValue = this.getValue(data, model, property, undefined)
-            if (![undefined, null].includes(nextValue)) {
-                if (typeof _formatter === 'function') {
-                    return _formatter(nextValue) || nextValue
-                }
-                return nextValue
-            }
-            if (modelOptional) return undefined
-            if (modelIgnoreNull) return null
-            return defaultValue
+        const nextValue = this.getValue(data, model, property, undefined)
+        if ([undefined, null].includes(nextValue)) {
+            if (modelOptional) return _formatter(undefined)
+            if (modelIgnoreNull) return _formatter(null)
         }
-        let modelType: ModelRecordType = model.type
-        if (Array.isArray(modelType) && modelType.length === 1) {
-            modelType = modelType[0]
-        }
-        if (modelType === 'Boolean') {
+
+        if (utils.isArray(modelType) && modelType.length === 1) {
+            const defaultValue = model.default || []
+            if(!utils.isArray(nextValue)) return defaultValue
+            return nextValue
+        } else if (modelType === 'Boolean') {
             const defaultValue = model.default || false
-            const value = _getValue(defaultValue)
-            if(!utils.isBoolean(value)) return defaultValue
-            return _formatter(value)
+            if(!utils.isBoolean(nextValue)) return defaultValue
+            return nextValue
         } else if (modelType === 'String') {
             const defaultValue = model.default || ''
-            const value = _getValue(defaultValue)
-            if(!utils.isString(value)) {
-                if (utils.isNumber(value)) return String(value)
-                if (utils.isPlainObject(value)) return utils.toJson(value) || ''
+            if(!utils.isString(nextValue)) {
+                if (utils.isNumber(nextValue)) return String(nextValue)
+                if (utils.isPlainObject(nextValue)) return utils.toJson(nextValue) || ''
                 return defaultValue
             }
-            return value
+            return nextValue
         } else if (modelType === 'Number') {
             const defaultValue = model.default || 0
-            const value = _getValue(defaultValue)
-            if(!utils.isNumber(Number(value))) return defaultValue
-            return value
+            if(!utils.isNumber(Number(nextValue))) return defaultValue
+            return nextValue
         } else if (modelType === 'DateString') {
             const defaultValue = model.default || '1970-01-01 08:00:00'
-            const value = _getValue(defaultValue)
-            if(!utils.isDateString(value)) return defaultValue
-            return value
+            if(!utils.isDateString(nextValue)) return defaultValue
+            return nextValue
         } else if (modelType === 'Timestamp') {
             const defaultValue = model.default || 0
-            const value = _getValue(defaultValue)
-            if(!utils.isInteger(Number(value))) return defaultValue
-            return value
+            if(!utils.isInteger(Number(nextValue))) return defaultValue
+            return nextValue
         } else {
             return undefined
         }
+    }
+
+    private parse(data: IPlainObject, modelRecord: IModel, property) {
+        const modelType: ModelRecordType = modelRecord.type
+        if ((['Boolean', 'String', 'Number', 'DateString', 'Timestamp'] as Array<ModelRecordType>).includes(modelType)) {
+            return this.valueHandler(data, modelRecord, property)
+        } else if (modelRecord.type instanceof Define) {
+            const value: IPlainObject = this.getValue(data, modelRecord, property)
+            if (!utils.isPlainObject(value)) return null
+            return modelRecord.type.parseObject(value).toObject()
+        } else if (utils.isArray(modelRecord.type)) {
+            const values: Array<any> = this.valueHandler(data, modelRecord, property)
+            if (utils.isArray(values)) { 
+                return values.map((sub, index) => this.parse(values, {type: modelRecord.type[0]}, String(index)))
+            }
+        }
+        return null
     }
 
     private parseObject(data: IPlainObject) {
@@ -115,38 +122,19 @@ class Define {
         const properties = this.getProperties()
         properties.forEach((property: string) => {
             const modelRecord: IModel = this.model[property] as IModel
-            const modelType: ModelRecordType = modelRecord.type
-
-            if ((['Boolean', 'String', 'Number', 'DateString', 'Timestamp'] as Array<ModelRecordType>).includes(modelType)) {
-                const value = this.valueHandler(data, modelRecord, property)
-                nextData[property] = value
-            }  else if (Array.isArray(modelType) && modelType.length === 1) {
-                const values: Array<any> = this.getValue(data, modelRecord, property, [])
-                if (!Array.isArray(values)) { 
-                    utils.logger(property, ' type is Array, but get different value.')
-                    nextData[property] = []
-                    return
-                }
-                const nextValue: any[] = []
-                const arrModel: Define = modelType[0] as Define
-                values.forEach((sub) => {
-                    const next = arrModel.parseObject(sub).toObject()
-                    if (next !== undefined) nextValue.push(next)
-                })
-                nextData[property] = nextValue
-            } else if (modelRecord.type instanceof Define) {
-                const value: any = this.getValue(data, modelRecord, property, [])
-                const jsonmodel = modelRecord.type.parseObject(value).toObject()
-                nextData[property] = jsonmodel
-            } else {
-                utils.logger(property, ' may not be a valid type.')
+            const modelOptional = modelRecord.optional || false
+            const _formatter = utils.get(modelRecord, 'format', (_next: any) => _next)
+            const finalData = this.parse(data, modelRecord, property)
+            if (finalData === undefined && modelOptional) {
+                return
             }
+            nextData[property] = _formatter(finalData)
         })
         return new Model(this, nextData);
     }
 
     private verifyType(type: any): boolean {
-        if (Array.isArray(type) && type.length === 1) {
+        if (utils.isArray(type) && type.length === 1) {
             return this.verifyType(type[0])
         } else if (['Boolean', 'String', 'Number', 'DateString', 'Timestamp'].includes(type) || type instanceof Define) {
             return true
