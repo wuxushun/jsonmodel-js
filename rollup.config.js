@@ -4,14 +4,12 @@ import commonjs from '@rollup/plugin-commonjs'
 import typescript from 'rollup-plugin-typescript2'
 import multi from 'rollup-plugin-multi-input'
 
-import pkg from './package.json'
-
 export default [
   {
     input: 'src/index.ts',
     output: {
       name: 'JsonModel',
-      file: pkg.browser,
+      file: 'dist/umd/jsonmodel.umd.js',
       format: 'umd',
       sourcemap: true
     },
