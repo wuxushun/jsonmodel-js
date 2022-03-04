@@ -109,7 +109,6 @@ class Define {
             return this.valueHandler(data, modelRecord, property)
         } else if (modelRecord.type instanceof Define) {
             const value: IPlainObject = this.getValue(data, modelRecord, property)
-            if (!utils.isPlainObject(value)) return null
             return modelRecord.type.parseObject(value).toObject()
         } else if (utils.isArray(modelRecord.type)) {
             const values: Array<any> = this.valueHandler(data, modelRecord, property)

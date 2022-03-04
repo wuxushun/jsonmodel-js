@@ -3,24 +3,24 @@ import { IPlainObject } from "./types"
 import utils from "./utils"
 
 class Model {
-    private readonly data: IPlainObject = {}
-    private readonly model: Define
+    private readonly __data: IPlainObject = {}
+    private readonly __model: Define
 
     constructor(definedModel: Define, parsedData: IPlainObject) {
         if (!(definedModel instanceof Define)) {
             throw new TypeError('The Define Type Error.')
         }
 
-        this.model = definedModel
-        this.data = utils.deepFreeze(parsedData)
+        this.__model = definedModel
+        this.__data = utils.deepFreeze(parsedData)
         this.init()
     }
 
     private init() {
-        this.model.getProperties().forEach((propertyName: string) => {
+        this.__model.getProperties().forEach((propertyName: string) => {
             Object.defineProperty(this, propertyName, {
                 get: function() {
-                    return utils.get(this.data, propertyName)
+                    return utils.get(this.__data, propertyName)
                 },
             })
         })
@@ -28,11 +28,11 @@ class Model {
     }
 
     public toObject(): IPlainObject {
-        return this.data
+        return this.__data
     }
 
     public toJSONString(): string {
-        return utils.toJson(this.data) || ''
+        return utils.toJson(this.__data) || ''
     }
 
     public toJSONStringWithKeys(propertyNames: Array<string>): string {
@@ -46,8 +46,8 @@ class Model {
             if (!utils.isString(propertyName)) {
                 throw new TypeError('The propertyName must be String.')
             }
-            if (this.model.hasProperty(propertyName)) {
-                next[propertyName] = utils.get(this.data, propertyName)
+            if (this.__model.hasProperty(propertyName)) {
+                next[propertyName] = utils.get(this.__data, propertyName)
             }
         })
         return next

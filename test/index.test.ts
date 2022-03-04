@@ -208,6 +208,49 @@ test('nest obj', () => {
     expect(m_model_obj.user).toEqual(correct.user)
 });
 
+test('deep nest obj', () => {
+
+    const jobModel = new JsonModel.define({
+        do: "String",
+    });
+
+    const userModel = new JsonModel.define({
+        name: "String",
+        jobs: [jobModel],
+    });
+    
+    const model = new JsonModel.define({
+        title: "String",
+        count: "Number",
+        user: userModel,
+    });
+    const json = {
+        title: "jsonmodel",
+        count: 10,
+        user: {
+            name: "mark",
+            jobs: [{
+                do: "doctor",
+            }],
+        },
+    }
+    const correct = {
+        title: "jsonmodel", 
+        count: 10, 
+        user: { 
+            name: 'mark',
+            jobs: [{
+                do: "doctor",
+            }],
+        },
+    }
+
+    const m_model_obj = model.modelFromObject(json)
+    expect(m_model_obj.title).toEqual(correct.title)
+    expect(m_model_obj.count).toEqual(correct.count)
+    expect(m_model_obj.user).toEqual(correct.user)
+});
+
 test('nest arr1', () => {
     const model = new JsonModel.define({
         title: "String",
