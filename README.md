@@ -46,8 +46,8 @@ npm i --save jsonmodel-js
 
 ```html
 <script type="text/javascript">
-  const model = new JsonModel.define({
-    title: "String",
+  const model = new JsonModel.Define({
+    title: JsonModel.Types.String,
   });
 </script>
 ```
@@ -57,8 +57,8 @@ npm i --save jsonmodel-js
 ```js
 const JsonModel = require("jsonmodel-js/cjs");
 
-const model = new JsonModel.define({
-  title: "String",
+const model = new JsonModel.Define({
+  title: JsonModel.Types.String,
 });
 ```
 
@@ -67,8 +67,8 @@ const model = new JsonModel.define({
 ```js
 import JsonModel from "jsonmodel-js/esm";
 
-const model = new JsonModel.define({
-  title: "String",
+const model = new JsonModel.Define({
+  title: JsonModel.Types.String,
 });
 ```
 
@@ -81,9 +81,15 @@ const model = new JsonModel.define({
 ```js
 const JsonModel = require("jsonmodel-js/cjs");
 
-const dataModel = new JsonModel.define({
-  title: "String",
-  count: "Number",
+const dataModel = new JsonModel.Define({
+  title: JsonModel.Types.String,
+  count: JsonModel.Types.Number,
+  isMan: {
+    type: JsonModel.Types.Boolean,
+    default: true,
+  },
+  ts: JsonModel.Types.Timestamp,
+  date: JsonModel.Types.DateString,
 });
 ```
 
@@ -93,10 +99,12 @@ const dataModel = new JsonModel.define({
 const data = dataModel.modelFromObject({
   title: "jsonmodel",
   count: 10,
-  xxx: "xxx",
+  isMan: false,
+  ts: 0,
+  date: "1970-01-01 08:00:00",
 });
 
-console.log(data); // { title: 'jsonmodel', count: 10 } xxx未定义将被忽略
+console.log(data); // { title: 'jsonmodel', count: 10, isMan: false, ts: 0, date: '1970-01-01 08:00:00' }
 ```
 
 From 数组：
@@ -104,13 +112,13 @@ From 数组：
 ```js
 const JsonModel = require("jsonmodel-js/cjs");
 
-const dataModel = new JsonModel.define({
+const dataModel = new JsonModel.Define({
   title: {
-    type: "String",
+    type: JsonModel.Types.String,
     default: "jsonmodel",
   },
   count: {
-    type: "Number",
+    type: JsonModel.Types.Number,
     default: 10,
   },
 });
@@ -136,13 +144,13 @@ console.log(data);
 ```js
 const JsonModel = require("jsonmodel-js/cjs");
 
-const dataModel = new JsonModel.define({
+const dataModel = new JsonModel.Define({
   title: {
-    type: "String",
+    type: JsonModel.Types.String,
     default: "jsonmodel",
   },
   count: {
-    type: "Number",
+    type: JsonModel.Types.Number,
     default: 10,
   },
 });
@@ -161,13 +169,13 @@ console.log(data); // { count: 20, title: 'jsonmodel' }
 ```js
 const JsonModel = require("jsonmodel-js/cjs");
 
-const dataModel = new JsonModel.define({
+const dataModel = new JsonModel.Define({
   title: {
-    type: "String",
+    type: JsonModel.Types.String,
     keyMapper: "name",
   },
   count: {
-    type: "Number",
+    type: JsonModel.Types.Number,
     default: 10,
   },
 });
@@ -187,13 +195,13 @@ console.log(data); // { title: 'jsonmodel', count: 20 }
 ```js
 const JsonModel = require("jsonmodel-js/cjs");
 
-const dataModel = new JsonModel.define({
+const dataModel = new JsonModel.Define({
   title: {
-    type: "String",
+    type: JsonModel.Types.String,
     default: "jsonmodel",
   },
   count: {
-    type: "Number",
+    type: JsonModel.Types.Number,
     default: 10,
     keyMapper: "num",
     format: (value) => {
@@ -216,13 +224,13 @@ console.log(data); // { title: 'jsonmodel', count: 20 }
 ```js
 const JsonModel = require("jsonmodel-js/cjs");
 
-const dataModel = new JsonModel.define({
+const dataModel = new JsonModel.Define({
   title: {
-    type: "String",
+    type: JsonModel.Types.String,
     default: "jsonmodel",
   },
   count: {
-    type: "Number",
+    type: JsonModel.Types.Number,
     optional: true,
   },
 });
@@ -241,13 +249,13 @@ console.log(data); // { title: 'jsonmodel' }
 ```js
 const JsonModel = require("jsonmodel-js/cjs");
 
-const dataModel = new JsonModel.define({
+const dataModel = new JsonModel.Define({
   title: {
-    type: "String",
+    type: JsonModel.Types.String,
     default: "jsonmodel",
   },
   count: {
-    type: "Number",
+    type: JsonModel.Types.Number,
     ignoreNull: true,
   },
 });
@@ -267,13 +275,13 @@ console.log(data); // { title: 'jsonmodel', count: null, }
 ```js
 const JsonModel = require("jsonmodel-js/cjs");
 
-const userModel = new JsonModel.define({
-  name: "String",
+const userModel = new JsonModel.Define({
+  name: JsonModel.Types.String,
 });
 
-const dataModel = new JsonModel.define({
-  title: "Number",
-  count: "String",
+const dataModel = new JsonModel.Define({
+  title: JsonModel.Types.Number,
+  count: JsonModel.Types.String,
   user: userModel,
 });
 
@@ -291,5 +299,7 @@ console.log(data); // { title: "jsonmodel", count: 10, user: { name: 'mark' } }
 ### 特征
 
 - [x] 完善单元测试
+- [ ] 完善 markdown
 - [ ] 实现所有 oc-jsonmodel api
+- [ ] 高级用法
 - [ ] 包体积优化

@@ -1,6 +1,6 @@
 
 
-import { IModelConfig, Models, IPlainObject, ModelRecordType, IModel } from './types'
+import types, { IModelConfig, Models, IPlainObject, ModelRecordType, IModel, isBasicTypeOf, ModelType, isTypeOf } from './types'
 import Model from './model'
 import utils from './utils'
 
@@ -23,6 +23,7 @@ class Define {
             ...defaultConfig,
             ...config,
         }
+        utils.deepFreeze(this)
     }
 
     public modelFromString(jsonstring: string): IPlainObject {
@@ -61,7 +62,7 @@ class Define {
     private valueHandler(data: any, model: IModel, property: string) {
         const modelType: ModelRecordType = model.type
         const modelOptional = model.optional || false
-        const modelIgnoreNull = model.ignoreNull || false
+        const modelIgnoreNull = model.ignoreNull || this.config.ignoreNull || false
         const nextValue = this.getValue(data, model, property, undefined)
         if ([undefined, null].includes(nextValue)) {
             if (modelIgnoreNull) return null
@@ -69,35 +70,65 @@ class Define {
         }
 
         if (utils.isArray(modelType) && modelType.length === 1) {
-            const defaultValue = model.default || []
-            if(!utils.isArray(nextValue)) return defaultValue
-            return nextValue
-        } else if (modelType === 'Boolean') {
-            const defaultValue = model.default || false
-            if(!utils.isBoolean(nextValue)) return defaultValue
-            return nextValue
-        } else if (modelType === 'String') {
-            const defaultValue = model.default || ''
-            if(!utils.isString(nextValue)) {
-                if (utils.isNumber(nextValue)) return String(nextValue)
-                if (utils.isPlainObject(nextValue)) return utils.toJson(nextValue) || ''
+            if (utils.isArray(nextValue)) {
+                return nextValue
+            }
+            const defaultValue = model.default
+            if (utils.isArray(defaultValue)) {
                 return defaultValue
             }
-            return nextValue
-        } else if (modelType === 'Number') {
-            const defaultValue = model.default || 0
+            return []
+        } else if (modelType === types.Boolean) {
+            if (utils.isBoolean(nextValue)) {
+                return nextValue
+            }
+            const defaultValue = model.default
+            if (utils.isBoolean(defaultValue)) {
+                return defaultValue
+            }
+            return false
+        } else if (modelType === types.String) {
+            if (utils.isString(nextValue)) {
+                return nextValue
+            } else if (utils.isNumber(nextValue)) {
+                return String(nextValue)
+            } else if (utils.isPlainObject(nextValue)) {
+                return utils.toJson(nextValue) || ''
+            }
+            const defaultValue = model.default
+            if (utils.isString(defaultValue)) {
+                return defaultValue
+            }
+            return ''
+        } else if (modelType === types.Number) {0
             const formattedNextValue = Number(nextValue)
-            if(!utils.isNumber(formattedNextValue)) return defaultValue
-            return formattedNextValue
-        } else if (modelType === 'DateString') {
-            const defaultValue = model.default || '1970-01-01 08:00:00'
-            if(!utils.isDateString(nextValue)) return defaultValue
-            return nextValue
-        } else if (modelType === 'Timestamp') {
-            const defaultValue = model.default || 0
+            if (utils.isNumber(formattedNextValue)) {
+                return formattedNextValue
+            }
+            const defaultValue = model.default
+            if (utils.isNumber(defaultValue)) {
+                return defaultValue
+            }
+            return 0
+        } else if (modelType === types.DateString) {
+            if (utils.isDateString(nextValue)) {
+                return nextValue
+            }
+            const defaultValue = model.default
+            if (utils.isDateString(defaultValue)) {
+                return defaultValue
+            }
+            return '1970-01-01 08:00:00'
+        } else if (modelType === types.Timestamp) {
             const formattedNextValue = Number(nextValue)
-            if(!utils.isTimestamp(formattedNextValue)) return defaultValue
-            return formattedNextValue
+            if (utils.isTimestamp(formattedNextValue)) {
+                return formattedNextValue
+            }
+            const defaultValue = model.default
+            if (utils.isTimestamp(defaultValue)) {
+                return defaultValue
+            }
+            return 0
         } else {
             return undefined
         }
@@ -105,7 +136,7 @@ class Define {
 
     private parse(data: IPlainObject, modelRecord: IModel, property) {
         const modelType: ModelRecordType = modelRecord.type
-        if ((['Boolean', 'String', 'Number', 'DateString', 'Timestamp'] as Array<ModelRecordType>).includes(modelType)) {
+        if (isBasicTypeOf(modelType as ModelType)) {
             return this.valueHandler(data, modelRecord, property)
         } else if (modelRecord.type instanceof Define) {
             const value: IPlainObject = this.getValue(data, modelRecord, property)
@@ -133,13 +164,14 @@ class Define {
             }
             nextData[property] = _formatter(finalData)
         })
-        return new Model(this, nextData);
+        Object.seal(nextData)
+        return new Model(this, nextData)
     }
 
     private verifyType(type: any): boolean {
         if (utils.isArray(type) && type.length === 1) {
             return this.verifyType(type[0])
-        } else if (['Boolean', 'String', 'Number', 'DateString', 'Timestamp'].includes(type) || type instanceof Define) {
+        } else if (isTypeOf(type)) {
             return true
         }
         return false
@@ -158,8 +190,8 @@ class Define {
                     type: property,
                 }
             } else if (utils.isObject(property)) {
-                const keys = Object.keys(property);
-                const isNotSettingKeys = keys.some((item: string) => ['type', 'default', 'optional', 'ignoreNull', 'keyMapper', 'format'].indexOf(item) == -1);
+                const keys = Object.keys(property)
+                const isNotSettingKeys = keys.some((item: string) => ['type', 'default', 'optional', 'ignoreNull', 'keyMapper', 'format'].indexOf(item) == -1)
                 if (!isNotSettingKeys) {
                     nextData[propertyName] = property
                 }

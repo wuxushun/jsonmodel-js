@@ -1,19 +1,19 @@
 import JsonModel from '../src/index'
 
 test('basic', () => {
-    const model = new JsonModel.define({
+    const model = new JsonModel.Define({
         title: {
-            type: 'String',
+            type: JsonModel.Types.String,
         },
         count: {
-            type: 'Number',
+            type: JsonModel.Types.Number,
         },
         isMan: {
-            type: 'Boolean',
+            type: JsonModel.Types.Boolean,
             default: true,
         },
-        ts: 'Timestamp',
-        date: 'DateString',
+        ts: JsonModel.Types.Timestamp,
+        date: JsonModel.Types.DateString,
     })
     const json = {
         title: 'hello jsonmodel',
@@ -26,10 +26,13 @@ test('basic', () => {
         ts: 0,
         date: '1970-01-01 08:00:00',
     }
+
     // from object
     const m_model_obj = model.modelFromObject(json)
     expect(m_model_obj.title).toEqual(correct.title)
     expect(m_model_obj.count).toEqual(correct.count)
+
+    console.log(m_model_obj)
 
     // from jsonString
     const m_model_json = model.modelFromString(JSON.stringify(json))
@@ -54,13 +57,13 @@ test('basic', () => {
 });
 
 test('default value', () => {
-    const model = new JsonModel.define({
+    const model = new JsonModel.Define({
         title: {
-            type: 'String',
+            type: JsonModel.Types.String,
             default: 'hello jsonmodel',
         },
         count: {
-            type: 'Number',
+            type: JsonModel.Types.Number,
         },
     })
     const json = {
@@ -77,13 +80,13 @@ test('default value', () => {
 });
 
 test('key mapper', () => {
-    const model = new JsonModel.define({
+    const model = new JsonModel.Define({
         title: {
-            type: "String",
+            type: JsonModel.Types.String,
             keyMapper: "data.name",
         },
         count: {
-            type: "Number",
+            type: JsonModel.Types.Number,
             default: 10,
         },
     })
@@ -104,13 +107,13 @@ test('key mapper', () => {
 });
 
 test('format', () => {
-    const model = new JsonModel.define({
+    const model = new JsonModel.Define({
         title: {
-            type: "String",
+            type: JsonModel.Types.String,
             default: "hello jsonmodel",
         },
         count: {
-            type: "Number",
+            type: JsonModel.Types.Number,
             format: (value) => {
                 return String(value);
             },
@@ -131,13 +134,13 @@ test('format', () => {
 });
 
 test('optional', () => {
-    const model = new JsonModel.define({
+    const model = new JsonModel.Define({
         title: {
-            type: "String",
+            type: JsonModel.Types.String,
             default: "jsonmodel",
         },
         count: {
-            type: "Number",
+            type: JsonModel.Types.Number,
             optional: true,
         },
     })
@@ -154,12 +157,12 @@ test('optional', () => {
 });
 
 test('ignore null', () => {
-    const model = new JsonModel.define({
+    const model = new JsonModel.Define({
         title: {
-            type: "String",
+            type: JsonModel.Types.String,
         },
         count: {
-            type: "Number",
+            type: JsonModel.Types.Number,
             ignoreNull: true,
         },
     })
@@ -178,13 +181,13 @@ test('ignore null', () => {
 });
 
 test('nest obj', () => {
-    const userModel = new JsonModel.define({
-        name: "String",
+    const userModel = new JsonModel.Define({
+        name: JsonModel.Types.String,
     });
     
-    const model = new JsonModel.define({
-        title: "String",
-        count: "Number",
+    const model = new JsonModel.Define({
+        title: JsonModel.Types.String,
+        count: JsonModel.Types.Number,
         user: userModel,
     });
     const json = {
@@ -210,18 +213,18 @@ test('nest obj', () => {
 
 test('deep nest obj', () => {
 
-    const jobModel = new JsonModel.define({
-        do: "String",
+    const jobModel = new JsonModel.Define({
+        do: JsonModel.Types.String,
     });
 
-    const userModel = new JsonModel.define({
-        name: "String",
-        jobs: [jobModel],
+    const userModel = new JsonModel.Define({
+        name: JsonModel.Types.String,
+        jobs: JsonModel.ArrayOf(jobModel),
     });
     
-    const model = new JsonModel.define({
-        title: "String",
-        count: "Number",
+    const model = new JsonModel.Define({
+        title: JsonModel.Types.String,
+        count: JsonModel.Types.Number,
         user: userModel,
     });
     const json = {
@@ -252,10 +255,10 @@ test('deep nest obj', () => {
 });
 
 test('nest arr1', () => {
-    const model = new JsonModel.define({
-        title: "String",
-        count: "Number",
-        names: ['String'],
+    const model = new JsonModel.Define({
+        title: JsonModel.Types.String,
+        count: JsonModel.Types.Number,
+        names: JsonModel.ArrayOf(JsonModel.Types.String),
     });
     const json = {
         title: "jsonmodel",
@@ -275,14 +278,14 @@ test('nest arr1', () => {
 });
 
 test('nest arr2', () => {
-    const userModel = new JsonModel.define({
-        name: "String",
+    const userModel = new JsonModel.Define({
+        name: JsonModel.Types.String,
     });
     
-    const model = new JsonModel.define({
-        title: "String",
-        count: "Number",
-        users: [userModel],
+    const model = new JsonModel.Define({
+        title: JsonModel.Types.String,
+        count: JsonModel.Types.Number,
+        users: JsonModel.ArrayOf(userModel),
     });
     const json = {
         title: "jsonmodel",
@@ -311,10 +314,10 @@ test('nest arr2', () => {
 
 
 test('err', () => {
-    const model = new JsonModel.define({
-        title: "String",
-        count: "Number",
-        names: ['String'],
+    const model = new JsonModel.Define({
+        title: JsonModel.Types.String,
+        count: JsonModel.Types.Number,
+        names: JsonModel.ArrayOf(JsonModel.Types.String),
     });
     const json = {}
     const correct = {

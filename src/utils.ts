@@ -3,6 +3,7 @@ import isObject from 'lodash/isObject'
 import isPlainObject from 'lodash/isPlainObject'
 import isArray from 'lodash/isArray'
 import get from 'lodash/get'
+import cloneDeep from 'lodash/cloneDeep'
 import { IPlainObject } from './types'
 
 
@@ -40,13 +41,13 @@ function isTimestamp(value: any): boolean {
 }
 
 function deepFreeze(obj: IPlainObject): IPlainObject {
-    Object.freeze(obj);
+    Object.freeze(obj)
     Object.keys(obj).forEach((key: string) => {
         if (isObject(obj[key])) {
-            deepFreeze(obj[key]);
+            deepFreeze(obj[key])
         }
-    });
-    return obj;
+    })
+    return obj
 }
 
 function toJson(obj: IPlainObject | Array<any>):string | null {
@@ -77,4 +78,5 @@ export default {
     deepFreeze,
     get,
     logger,
+    cloneDeep,
 }

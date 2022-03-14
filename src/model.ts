@@ -2,37 +2,45 @@ import Define from "./define"
 import { IPlainObject } from "./types"
 import utils from "./utils"
 
-class Model {
-    private readonly __data: IPlainObject = {}
-    private readonly __model: Define
+const symbolData = Symbol('_data')
+const symbolModel = Symbol('_model')
 
+class Model {
     constructor(definedModel: Define, parsedData: IPlainObject) {
         if (!(definedModel instanceof Define)) {
             throw new TypeError('The Define Type Error.')
         }
 
-        this.__model = definedModel
-        this.__data = utils.deepFreeze(parsedData)
+        this[symbolModel] = definedModel
+        this[symbolData] = utils.deepFreeze(parsedData)
         this.init()
     }
 
     private init() {
-        this.__model.getProperties().forEach((propertyName: string) => {
+        this.getModel().getProperties().forEach((propertyName: string) => {
             Object.defineProperty(this, propertyName, {
                 get: function() {
-                    return utils.get(this.__data, propertyName)
+                    return utils.get(this.getData(), propertyName)
                 },
             })
         })
         utils.deepFreeze(this)
     }
 
+    private getModel() {
+        return this[symbolModel]
+    }
+
+    private getData() {
+        return this[symbolData]
+    }
+
     public toObject(): IPlainObject {
-        return this.__data
+        return utils.cloneDeep(this.getData())
     }
 
     public toJSONString(): string {
-        return utils.toJson(this.__data) || ''
+        return utils.toJson(this.getData()) || ''
     }
 
     public toJSONStringWithKeys(propertyNames: Array<string>): string {
@@ -41,13 +49,14 @@ class Model {
 
     public toObjectWithKeys(propertyNames: Array<string>): IPlainObject {
         const next: IPlainObject = {}
+        const tmp: IPlainObject = this.toObject()
         if (!utils.isArray(propertyNames)) return next
         propertyNames.forEach((propertyName: string) => {
             if (!utils.isString(propertyName)) {
                 throw new TypeError('The propertyName must be String.')
             }
-            if (this.__model.hasProperty(propertyName)) {
-                next[propertyName] = utils.get(this.__data, propertyName)
+            if (this.getModel().hasProperty(propertyName)) {
+                next[propertyName] = utils.get(tmp, propertyName)
             }
         })
         return next
