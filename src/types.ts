@@ -1,4 +1,4 @@
-import Define from "./define";
+import Define from "./define"
 
 export interface IPlainObject {
     [key: string]: any;
